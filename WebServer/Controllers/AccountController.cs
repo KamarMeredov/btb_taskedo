@@ -82,8 +82,7 @@ namespace WebServer.Controllers
             return new JsonResult(new
             {
                 Name = User.FindFirstValue(ClaimTypes.Name),
-                Login = User.FindFirstValue(ClaimTypes.NameIdentifier),
-                Email = User.FindFirstValue(ClaimTypes.Email)
+                Login = User.FindFirstValue(ClaimTypes.Email),
             });
         }
 
