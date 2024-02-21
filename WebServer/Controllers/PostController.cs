@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using WebServer.Dto;
+using WebServer.DTO;
 using WebServer.DTO.ReponseObjects;
 using WebServer.Services;
 

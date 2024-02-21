@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace WebServer.Dto
+namespace WebServer.DTO
 {
     public class BlogPostDTO
     {

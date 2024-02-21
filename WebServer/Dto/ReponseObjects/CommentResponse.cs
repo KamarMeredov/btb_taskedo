@@ -1,4 +1,4 @@
-﻿namespace WebServer.Dto.ReponseObjects
+﻿namespace WebServer.DTO.ReponseObjects
 {
     public class CommentResponse
     {

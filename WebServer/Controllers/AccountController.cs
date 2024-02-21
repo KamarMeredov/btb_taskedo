@@ -23,7 +23,7 @@ namespace WebServer.Controllers
         [HttpPost]
         public async Task<IActionResult> Register([FromBody] RegisterUserDTO userDTO)
         {
-            if( !ModelState.IsValid )
+            if (!ModelState.IsValid)
             {
                 return new JsonResult(new RegistrationResponse()
                 {

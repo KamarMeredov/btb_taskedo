@@ -107,7 +107,7 @@ namespace WebServer.Services
                 Email = identityUser.Email,
                 Message = result.Errors.Select(x => x.Description).FirstOrDefault(),
                 UserName = user.Name,
-            }, StatusCodes.Status500InternalServerError);
+            }, StatusCodes.Status409Conflict);
         }
     }
 }

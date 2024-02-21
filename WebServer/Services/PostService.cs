@@ -3,8 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using WebServer.Data;
 using WebServer.Data.Models;
-using WebServer.Dto;
-using WebServer.Dto.ReponseObjects;
+using WebServer.DTO;
+using WebServer.DTO.ReponseObjects;
 
 namespace WebServer.Services
 {

@@ -1,5 +1,5 @@
-﻿using WebServer.Dto;
-using WebServer.Dto.ReponseObjects;
+﻿using WebServer.DTO;
+using WebServer.DTO.ReponseObjects;
 
 namespace WebServer.Services
 {
