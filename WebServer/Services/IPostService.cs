@@ -12,5 +12,9 @@ namespace WebServer.Services
         Task<(IEnumerable<BlogPostResponse> response, int statusCode)> GetPostsByAuthor(int id);
         Task<(IEnumerable<BlogPostResponse> response, int statusCode)> GetAllPosts();
 
+        Task<(CommentResponse response, int statusCode)> CreateComment(CommentDto comment, int postId);
+        Task<(CommentResponse response, int statusCode)> UpdateComment(CommentDto comment, int id);
+        Task<int> DeleteComment(int id);
+
     }
 }

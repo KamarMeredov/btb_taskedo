@@ -15,6 +15,7 @@ namespace WebServer.Controllers
             _postService = postService;
         }
 
+        // Posts CRUD logic
         [HttpPost]
         public async Task<IActionResult> CreatePost([FromBody] BlogPostDTO blogPost)
         {
@@ -94,6 +95,50 @@ namespace WebServer.Controllers
                 return new JsonResult(result.response) { StatusCode = result.statusCode };
             }
             catch(Exception ex )
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
+
+
+        // Comments CRUD logic
+        [HttpPost]
+        public async Task<IActionResult> CreateComment([FromBody] CommentDto comment, [FromQuery] int postId)
+        {
+            try
+            {
+                var result = await _postService.CreateComment(comment, postId);
+                return new JsonResult(result.response) { StatusCode = result.statusCode };
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteComment([FromQuery] int id)
+        {
+            try
+            {
+                var result = await _postService.DeleteComment(id);
+                return StatusCode(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateComment([FromBody] CommentDto comment, int id)
+        {
+            try
+            {
+                var result = await _postService.UpdateComment(comment, id);
+                return new JsonResult(result.response) { StatusCode = result.statusCode };
+            }
+            catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
