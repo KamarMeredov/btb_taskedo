@@ -9,6 +9,7 @@ namespace WebServer
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.Logging.ClearProviders();
 
             // Add services to the container.
             builder.Services.ConfigureServices(builder);
