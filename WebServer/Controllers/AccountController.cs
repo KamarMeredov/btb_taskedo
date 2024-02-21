@@ -5,6 +5,7 @@ using WebServer.DTO;
 using WebServer.DTO.ReponseObjects;
 using WebServer.Services;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace WebServer.Controllers
 {
@@ -18,61 +19,40 @@ namespace WebServer.Controllers
             _configuration = configuration;
             _accountService = accountService;
         }
-        
+
         [HttpPost]
         public async Task<IActionResult> Register([FromBody] RegisterUserDTO userDTO)
         {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return new JsonResult(new RegistrationResponse()
-                    {
-                        Message = ModelState.FirstOrDefault().Value.Errors.FirstOrDefault().ErrorMessage
-                    })
-                    { StatusCode = StatusCodes.Status400BadRequest};
-                }
-
-                var result = await _accountService.RegisterAsync(userDTO);
-                return new JsonResult(result.response) { StatusCode = result.statusCode };
-            }
-            catch (Exception ex)
+            if( !ModelState.IsValid )
             {
                 return new JsonResult(new RegistrationResponse()
                 {
-                    Message = "Something went wrong on server",
+                    Message = ModelState.FirstOrDefault(x => x.Value.ValidationState == ModelValidationState.Invalid)
+                    .Value.Errors.FirstOrDefault().ErrorMessage
                 })
-                { StatusCode = StatusCodes.Status500InternalServerError };
+                { StatusCode = StatusCodes.Status400BadRequest };
             }
+
+            var result = await _accountService.RegisterAsync(userDTO);
+            return new JsonResult(result.response) { StatusCode = result.statusCode };
         }
 
 
         [HttpPost]
-        public async Task<IActionResult> Login([FromBody] LoginUserDTO userDTO) 
+        public async Task<IActionResult> Login([FromBody] LoginUserDTO userDTO)
         {
-            try
+            if( !ModelState.IsValid )
             {
-                if (!ModelState.IsValid)
+                return new JsonResult((new RegistrationResponse()
                 {
-                    return new JsonResult((new RegistrationResponse()
-                    {
-                        Message = ModelState.FirstOrDefault().Value.Errors.FirstOrDefault().ErrorMessage,
-                    }))
-                    { StatusCode = StatusCodes.Status400BadRequest};
-                }
+                    Message = ModelState.FirstOrDefault(x => x.Value.ValidationState == ModelValidationState.Invalid)
+                    .Value.Errors.FirstOrDefault().ErrorMessage,
+                }))
+                { StatusCode = StatusCodes.Status400BadRequest };
+            }
 
-                var result = await _accountService.LoginAsync(userDTO);
-                return new JsonResult(result.response) { StatusCode = result.statusCode };
-            }
-            catch (Exception ex)
-            {
-                return new JsonResult(new RegistrationResponse()
-                {
-                    Message = "Something went wrong on server",
-                })
-                { StatusCode = StatusCodes.Status500InternalServerError };
-                
-            }
+            var result = await _accountService.LoginAsync(userDTO);
+            return new JsonResult(result.response) { StatusCode = result.statusCode };
         }
 
         [HttpGet]

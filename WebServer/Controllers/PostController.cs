@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using WebServer.Dto;
+using WebServer.DTO.ReponseObjects;
 using WebServer.Services;
 
 namespace WebServer.Controllers
@@ -19,85 +21,63 @@ namespace WebServer.Controllers
         [HttpPost]
         public async Task<IActionResult> CreatePost([FromBody] BlogPostDTO blogPost)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                var result = await _postService.CreatePost(blogPost);
-                return new JsonResult(result.response) { StatusCode = result.statusCode };
-            } 
-            catch (Exception ex) 
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
+                return new JsonResult((new
+                {
+                    Message = ModelState.FirstOrDefault(x => x.Value.ValidationState == ModelValidationState.Invalid)
+                    .Value.Errors.FirstOrDefault().ErrorMessage,
+                }))
+                { StatusCode = StatusCodes.Status400BadRequest };
             }
+
+            var result = await _postService.CreatePost(blogPost);
+            return new JsonResult(result.response) { StatusCode = result.statusCode };
         }
 
         [HttpDelete]
         public async Task<IActionResult> DeletePost([FromQuery] int id)
         {
-            try
-            {
-                var result = await _postService.DeletePost(id);
-                return StatusCode(result);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
+            var result = await _postService.DeletePost(id);
+            return StatusCode(result);
         }
 
         [HttpGet]
         public async Task<IActionResult> GetPostById([FromQuery] int id)
         {
-            try
-            {
-                var result = await _postService.GetPostById(id);
-                return new JsonResult(result.response) { StatusCode = result.statusCode };
-            }
-            catch( Exception ex )
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
+            var result = await _postService.GetPostById(id);
+            return new JsonResult(result.response) { StatusCode = result.statusCode };
         }
 
         [HttpGet]
         public async Task<IActionResult> GetPostByAuthor([FromQuery] int id)
         {
-            try
-            {
-                var result = await _postService.GetPostsByAuthor(id);
-                return new JsonResult(result.response) { StatusCode = result.statusCode };
-            }
-            catch (Exception ex) 
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
+            var result = await _postService.GetPostsByAuthor(id);
+            return new JsonResult(result.response) { StatusCode = result.statusCode };
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllPosts()
         {
-            try
-            {
-                var result = await _postService.GetAllPosts();
-                return new JsonResult(result.response) { StatusCode = result.statusCode };
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
+            var result = await _postService.GetAllPosts();
+            return new JsonResult(result.response) { StatusCode = result.statusCode };
         }
 
         [HttpPost]
         public async Task<IActionResult> UpdatePost([FromBody] BlogPostDTO blogPost, [FromQuery] int id)
         {
-            try
+            if( !ModelState.IsValid )
             {
-                var result = await _postService.UpdatePost(blogPost, id);
-                return new JsonResult(result.response) { StatusCode = result.statusCode };
+                return new JsonResult((new
+                {
+                    Message = ModelState.FirstOrDefault(x => x.Value.ValidationState == ModelValidationState.Invalid)
+                    .Value.Errors.FirstOrDefault().ErrorMessage,
+                }))
+                { StatusCode = StatusCodes.Status400BadRequest };
             }
-            catch(Exception ex )
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
+
+            var result = await _postService.UpdatePost(blogPost, id);
+            return new JsonResult(result.response) { StatusCode = result.statusCode };
         }
 
 
@@ -105,43 +85,42 @@ namespace WebServer.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateComment([FromBody] CommentDto comment, [FromQuery] int postId)
         {
-            try
+            if( !ModelState.IsValid )
             {
-                var result = await _postService.CreateComment(comment, postId);
-                return new JsonResult(result.response) { StatusCode = result.statusCode };
+                return new JsonResult((new
+                {
+                    Message = ModelState.FirstOrDefault(x => x.Value.ValidationState == ModelValidationState.Invalid)
+                    .Value.Errors.FirstOrDefault().ErrorMessage,
+                }))
+                { StatusCode = StatusCodes.Status400BadRequest };
             }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
+
+            var result = await _postService.CreateComment(comment, postId);
+            return new JsonResult(result.response) { StatusCode = result.statusCode };
         }
 
         [HttpDelete]
         public async Task<IActionResult> DeleteComment([FromQuery] int id)
         {
-            try
-            {
-                var result = await _postService.DeleteComment(id);
-                return StatusCode(result);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
+            var result = await _postService.DeleteComment(id);
+            return StatusCode(result);
         }
 
         [HttpPost]
         public async Task<IActionResult> UpdateComment([FromBody] CommentDto comment, int id)
         {
-            try
+            if( !ModelState.IsValid )
             {
-                var result = await _postService.UpdateComment(comment, id);
-                return new JsonResult(result.response) { StatusCode = result.statusCode };
+                return new JsonResult((new
+                {
+                    Message = ModelState.FirstOrDefault(x => x.Value.ValidationState == ModelValidationState.Invalid)
+                    .Value.Errors.FirstOrDefault().ErrorMessage,
+                }))
+                { StatusCode = StatusCodes.Status400BadRequest };
             }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
+
+            var result = await _postService.UpdateComment(comment, id);
+            return new JsonResult(result.response) { StatusCode = result.statusCode };
         }
     }
 }
