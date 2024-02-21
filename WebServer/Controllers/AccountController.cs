@@ -8,7 +8,7 @@ using System.Security.Claims;
 
 namespace WebServer.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     public class AccountController : Controller
     {
         IConfiguration _configuration;
@@ -19,7 +19,7 @@ namespace WebServer.Controllers
             _accountService = accountService;
         }
         
-        [HttpPost("register")]
+        [HttpPost]
         public async Task<IActionResult> Register([FromBody] RegisterUserDTO userDTO)
         {
             try
@@ -47,7 +47,7 @@ namespace WebServer.Controllers
         }
 
 
-        [HttpPost("login")]
+        [HttpPost]
         public async Task<IActionResult> Login([FromBody] LoginUserDTO userDTO) 
         {
             try
@@ -75,7 +75,7 @@ namespace WebServer.Controllers
             }
         }
 
-        [HttpGet("getme")]
+        [HttpGet]
         [Authorize]
         public async Task<IActionResult> GetMe()
         {

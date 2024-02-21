@@ -7,6 +7,7 @@ using WebServer.Services;
 using System.Text;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
+using WebServer.Data.Models;
 
 namespace WebServer.Extensions
 {
@@ -24,7 +25,7 @@ namespace WebServer.Extensions
                 options.UseSqlServer(builder.Configuration.GetConnectionString("Default"));
             });
 
-            services.AddIdentity<IdentityUser<int>, IdentityRole<int>>(options =>
+            services.AddIdentity<ApplicationUser, IdentityRole<int>>(options =>
             {
                 options.Password.RequireDigit = true;
                 options.Password.RequireLowercase = true;
@@ -95,7 +96,9 @@ namespace WebServer.Extensions
                 });
             });
 
+            services.AddHttpContextAccessor();
             services.AddTransient<IAccountService, AccountService>();
+            services.AddTransient<IPostService, PostService>();
         }
 
 

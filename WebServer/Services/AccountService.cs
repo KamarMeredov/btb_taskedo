@@ -5,14 +5,15 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using WebServer.DTO;
+using WebServer.Data.Models;
 
 namespace WebServer.Services
 {
     public class AccountService : IAccountService
     {
         IConfiguration _configuration;
-        UserManager<IdentityUser<int>> _userManager;
-        public AccountService(IConfiguration configuration, UserManager<IdentityUser<int>> userManager) 
+        UserManager<ApplicationUser> _userManager;
+        public AccountService(IConfiguration configuration, UserManager<ApplicationUser> userManager) 
         {
             _configuration = configuration;
             _userManager = userManager;
@@ -83,7 +84,7 @@ namespace WebServer.Services
                 throw new ArgumentNullException(nameof(user));
             }
 
-            var identityUser = new IdentityUser<int>()
+            var identityUser = new ApplicationUser()
             {
                 UserName = user.Name,
                 Email = user.Email
