@@ -11,8 +11,8 @@ namespace WebServer.Services
 {
     public class AccountService : IAccountService
     {
-        IConfiguration _configuration;
-        UserManager<ApplicationUser> _userManager;
+        private readonly IConfiguration _configuration;
+        private readonly UserManager<ApplicationUser> _userManager;
         public AccountService(IConfiguration configuration, UserManager<ApplicationUser> userManager) 
         {
             _configuration = configuration;
@@ -21,8 +21,6 @@ namespace WebServer.Services
 
         public async Task<(LoginResponse response, int statusCode)> LoginAsync(LoginUserDTO user)
         {
-
-            await Task.Delay(2000);
             var identityUser = await _userManager.FindByEmailAsync(user.Email);
 
             if (identityUser == null)
