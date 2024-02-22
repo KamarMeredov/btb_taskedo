@@ -12,4 +12,10 @@ Then rebuild project.</br>
 If everything went well, time to apply database migration. For that open Package manager console of Visual Studio and run command:</br>
 `Update-Database`</br>
 That's all you can run project, Swagger UI will appear:)
-Additionally you can test Registration and Login logic via running XUnit tests.
+Additionally you can test Registration and Login logic via running XUnit tests.</br>
+# Part Two: GetAmortizationSchedule
+Stored procedure generates monthly payment report (amortization table) for loan.</br>
+To test the procedure run command in MS Sql Server via Management Studio:</br>
+```
+EXEC [dbo].[GetAmortizationSchedule]
+```
