@@ -19,29 +19,19 @@ namespace BlogPlatform.Services
             _userManager = userManager;
         }
 
-        public async Task<(LoginResponse response, int statusCode)> LoginAsync(LoginUserDTO user)
+        public async Task<ApplicationUser> GetUserByEmail(string email)
+        {
+            return await _userManager.FindByEmailAsync(email);
+        }
+
+        public async Task<bool> CheckUserPassword(ApplicationUser user, string password)
+        {
+            return await _userManager.CheckPasswordAsync(user, password);
+        }
+
+        public async Task<LoginResponse> LoginAsync(LoginUserDTO user)
         {
             var identityUser = await _userManager.FindByEmailAsync(user.Email);
-
-            if (identityUser == null)
-            {
-                return (new LoginResponse()
-                {
-                    Email = user.Email,
-                    Message = "Incorrect email or password.",
-                }, StatusCodes.Status404NotFound);
-            }
-
-            var password = await _userManager.CheckPasswordAsync(identityUser, user.Password);
-
-            if (!password)
-            {
-                return (new LoginResponse()
-                {
-                    Message = "Incorrect email or password.",
-                    Email = user.Email,
-                }, StatusCodes.Status401Unauthorized);
-            }
 
             var issuer = _configuration["Jwt:Issuer"];
             var audience = _configuration["Jwt:Audience"];
@@ -66,16 +56,16 @@ namespace BlogPlatform.Services
 
             var tokenString = new JwtSecurityTokenHandler().WriteToken(jwt);
 
-            return (new LoginResponse()
+            return new LoginResponse()
             {
                 Email = user.Email,
                 Message = "Login succeed.",
                 UserName = identityUser.UserName,
                 AccessToken = tokenString
-            }, StatusCodes.Status200OK);
+            };
         }
 
-        public async Task<(RegistrationResponse response, int statusCode)> RegisterAsync(RegisterUserDTO user)
+        public async Task<(RegistrationResponse response, bool succeed)> RegisterAsync(RegisterUserDTO user)
         {
             if (user == null)
             {
@@ -97,7 +87,7 @@ namespace BlogPlatform.Services
                     Email = identityUser.Email,
                     Message = "Registration succeed.",
                     UserName = user.Name,
-                }, StatusCodes.Status201Created);
+                }, true);
             }
 
             return (new RegistrationResponse()
@@ -105,7 +95,7 @@ namespace BlogPlatform.Services
                 Email = identityUser.Email,
                 Message = result.Errors.Select(x => x.Description).FirstOrDefault(),
                 UserName = user.Name,
-            }, StatusCodes.Status500InternalServerError);
+            }, false);
         }
     }
 }

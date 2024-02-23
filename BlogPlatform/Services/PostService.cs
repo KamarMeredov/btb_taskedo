@@ -23,7 +23,7 @@ namespace BlogPlatform.Services
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<(BlogPostResponse response, int statusCode)> CreatePost(BlogPostDTO blogPost)
+        public async Task<BlogPostResponse> CreatePost(BlogPostDTO blogPost)
         {
             var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var result = await _context.BlogPosts.AddAsync(new Data.Models.BlogPost
@@ -42,25 +42,24 @@ namespace BlogPlatform.Services
                 Id = result.Entity.Id,
             };
 
-            return (response, StatusCodes.Status201Created);
+            return response;
         }
 
-        public async Task<int> DeletePost(int id)
+        public async Task DeletePost(int id)
         {
             var post = await _context.BlogPosts
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .SingleOrDefaultAsync(x => x.Id == id);
             
             if (post == null)
             {
-                return StatusCodes.Status404NotFound;
+                return;
             }
 
             _context.BlogPosts.Remove(post);
             await _context.SaveChangesAsync();
-            return StatusCodes.Status200OK;
         }
 
-        public async Task<(IEnumerable<BlogPostResponse> response, int statusCode)> GetAllPosts()
+        public async Task<IEnumerable<BlogPostResponse>> GetAllPosts()
         {
             var result = await _context.BlogPosts
                 .Include(x => x.Comments)
@@ -82,10 +81,10 @@ namespace BlogPlatform.Services
                 .AsNoTracking()
                 .ToListAsync();
 
-            return (result, StatusCodes.Status200OK);
+            return result;
         }
 
-        public async Task<(IEnumerable<BlogPostResponse> response, int statusCode)> GetPostsByAuthor(int id)
+        public async Task<IEnumerable<BlogPostResponse>> GetPostsByAuthor(int id)
         {
             var result = await _context.BlogPosts
                 .Where(x => x.AuthorId == id)
@@ -108,12 +107,12 @@ namespace BlogPlatform.Services
                 .AsNoTracking()
                 .ToListAsync();
 
-            return (result, StatusCodes.Status200OK);
+            return result;
         }
 
-        public async Task<(BlogPostResponse response, int statusCode)> GetPostById(int id)
+        public async Task<BlogPostResponse> GetPostById(int id)
         {
-            var result = _context.BlogPosts
+            var result = await _context.BlogPosts
                 .Where(x => x.Id == id)
                 .Include(x => x.Comments)
                 .Select(x => new BlogPostResponse
@@ -132,22 +131,16 @@ namespace BlogPlatform.Services
                     }).ToList(),
                 })
                 .AsNoTracking()
-                .ToList()
-                .FirstOrDefault();
+                .SingleOrDefaultAsync();
 
-            return (result, StatusCodes.Status200OK);
+            return result;
         }
 
-        public async Task<(BlogPostResponse response, int statusCode)> UpdatePost(BlogPostDTO blogPost, int id)
+        public async Task<BlogPostResponse> UpdatePost(BlogPostDTO blogPost, int id)
         {
             var post = await _context.BlogPosts
                 .Include(x => x.Comments)
-                .FirstOrDefaultAsync(x => x.Id == id);
-
-            if (post == null)
-            {
-                return (null, StatusCodes.Status404NotFound);
-            }
+                .SingleOrDefaultAsync(x => x.Id == id);
 
             post.Description = blogPost.Description;
             post.Title = blogPost.Title;
@@ -170,18 +163,13 @@ namespace BlogPlatform.Services
                 }).ToList()
             };
 
-            return (result, StatusCodes.Status200OK);
+            return result;
         }
 
-        public async Task<(CommentResponse response, int statusCode)> CreateComment(CommentDto comment, int postId)
+        public async Task<CommentResponse> CreateComment(CommentDto comment, int postId)
         {
             var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var post = _context.BlogPosts.FirstOrDefault(x => x.Id == postId);
-
-            if (post == null)
-            { 
-                return (null, StatusCodes.Status404NotFound); 
-            }
+            var post = _context.BlogPosts.SingleOrDefault(x => x.Id == postId);
 
             var result = await _context.Comments.AddAsync(new Comment
             {
@@ -202,17 +190,13 @@ namespace BlogPlatform.Services
                 Title = result.Entity.Title
             };
 
-            return (response, StatusCodes.Status201Created);
+            return response;
         }
 
-        public async Task<(CommentResponse response, int statusCode)> UpdateComment(CommentDto comment, int id)
+        public async Task<CommentResponse> UpdateComment(CommentDto comment, int id)
         {
-            var dbComment = await _context.Comments.FirstOrDefaultAsync(x => x.Id == id);
-            if (dbComment == null)
-            {
-                return (null, StatusCodes.Status404NotFound);
-            }
-
+            var dbComment = await _context.Comments.SingleOrDefaultAsync(x => x.Id == id);
+            
             dbComment.Title = comment.Title;
             dbComment.Description = comment.Description;
 
@@ -227,21 +211,37 @@ namespace BlogPlatform.Services
                 PostId = dbComment.BlogPostId
             };
 
-            return (response, StatusCodes.Status200OK);
+            return response;
         }
 
-        public async Task<int> DeleteComment(int id)
+        public async Task DeleteComment(int id)
         {
-            var comment = await _context.Comments.FirstOrDefaultAsync(x => x.Id == id);
-
+            var comment = await _context.Comments.SingleOrDefaultAsync(x => x.Id == id);
+            
             if (comment == null)
             {
-                return StatusCodes.Status404NotFound;
+                return;
             }
-            
+
             _context.Comments.Remove(comment);
             await _context.SaveChangesAsync();
-            return StatusCodes.Status200OK;
+        }
+
+        public async Task<CommentResponse> GetCommentById(int id)
+        {
+            var comment = await _context.Comments
+                .Where(x => x.Id == id)
+                .Select(x => new CommentResponse
+                {
+                    Author = x.AuthorId,
+                    Title = x.Title,
+                    Id = x.Id,
+                    Description = x.Description,
+                    PostId = x.BlogPostId
+                })
+                .SingleOrDefaultAsync();
+
+            return comment;
         }
     }
 }

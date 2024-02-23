@@ -34,7 +34,15 @@ namespace BlogPlatform.Controllers
             }
 
             var result = await _accountService.RegisterAsync(userDTO);
-            return new JsonResult(result.response) { StatusCode = result.statusCode };
+
+            if (result.succeed)
+            {
+                return new JsonResult(result.response) { StatusCode = StatusCodes.Status201Created };
+            }
+            else
+            {
+                return new JsonResult(result.response) { StatusCode = StatusCodes.Status500InternalServerError };
+            }
         }
 
 
@@ -51,8 +59,30 @@ namespace BlogPlatform.Controllers
                 { StatusCode = StatusCodes.Status400BadRequest };
             }
 
+            var user = await _accountService.GetUserByEmail(userDTO.Email);
+            if (user == null)
+            {
+                return new JsonResult(new LoginResponse()
+                {
+                    Email = userDTO.Email,
+                    Message = "Incorrect email or password.",
+                })
+                { StatusCode = StatusCodes.Status401Unauthorized};
+            }
+            var truePassword = await _accountService.CheckUserPassword(user, userDTO.Password);
+            
+            if (!truePassword)
+            {
+                return new JsonResult(new LoginResponse()
+                {
+                    Email = userDTO.Email,
+                    Message = "Incorrect email or password.",
+                })
+                { StatusCode = StatusCodes.Status401Unauthorized };
+            }
+
             var result = await _accountService.LoginAsync(userDTO);
-            return new JsonResult(result.response) { StatusCode = result.statusCode };
+            return new JsonResult(result) { StatusCode = StatusCodes.Status200OK };
         }
 
         [HttpGet]

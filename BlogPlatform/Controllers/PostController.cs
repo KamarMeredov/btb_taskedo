@@ -32,35 +32,48 @@ namespace BlogPlatform.Controllers
             }
 
             var result = await _postService.CreatePost(blogPost);
-            return new JsonResult(result.response) { StatusCode = result.statusCode };
+            return new JsonResult(result) { StatusCode = StatusCodes.Status201Created };
         }
 
         [HttpDelete]
         public async Task<IActionResult> DeletePost([FromQuery] int id)
         {
-            var result = await _postService.DeletePost(id);
-            return StatusCode(result);
+            var post = await _postService.GetPostById(id);
+            
+            if (post == null)
+            {
+                return NotFound();
+            }
+
+            await _postService.DeletePost(id);
+            return Ok();
         }
 
         [HttpGet]
         public async Task<IActionResult> GetPostById([FromQuery] int id)
         {
             var result = await _postService.GetPostById(id);
-            return new JsonResult(result.response) { StatusCode = result.statusCode };
+
+            if (result == null)
+            {
+                return NotFound();
+            }
+
+            return new JsonResult(result) { StatusCode = StatusCodes.Status200OK };
         }
 
         [HttpGet]
         public async Task<IActionResult> GetPostByAuthor([FromQuery] int id)
         {
             var result = await _postService.GetPostsByAuthor(id);
-            return new JsonResult(result.response) { StatusCode = result.statusCode };
+            return new JsonResult(result) { StatusCode = StatusCodes.Status200OK };
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllPosts()
         {
             var result = await _postService.GetAllPosts();
-            return new JsonResult(result.response) { StatusCode = result.statusCode };
+            return new JsonResult(result) { StatusCode = StatusCodes.Status200OK };
         }
 
         [HttpPost]
@@ -76,8 +89,15 @@ namespace BlogPlatform.Controllers
                 { StatusCode = StatusCodes.Status400BadRequest };
             }
 
+            var post = await _postService.GetPostById(id);
+            
+            if ( post == null )
+            {
+                return NotFound();
+            }
+
             var result = await _postService.UpdatePost(blogPost, id);
-            return new JsonResult(result.response) { StatusCode = result.statusCode };
+            return new JsonResult(result) { StatusCode = StatusCodes.Status200OK };
         }
 
 
@@ -95,15 +115,29 @@ namespace BlogPlatform.Controllers
                 { StatusCode = StatusCodes.Status400BadRequest };
             }
 
+            var post = await _postService.GetPostById(postId);
+            
+            if (post == null )
+            {
+                return NotFound();
+            }
+
             var result = await _postService.CreateComment(comment, postId);
-            return new JsonResult(result.response) { StatusCode = result.statusCode };
+            return new JsonResult(result) { StatusCode = StatusCodes.Status200OK };
         }
 
         [HttpDelete]
         public async Task<IActionResult> DeleteComment([FromQuery] int id)
         {
-            var result = await _postService.DeleteComment(id);
-            return StatusCode(result);
+            var comment = await _postService.GetCommentById(id);
+            
+            if (comment == null)
+            {
+                return NotFound();
+            }
+
+            await _postService.DeleteComment(id);
+            return StatusCode(StatusCodes.Status200OK);
         }
 
         [HttpPost]
@@ -119,8 +153,15 @@ namespace BlogPlatform.Controllers
                 { StatusCode = StatusCodes.Status400BadRequest };
             }
 
+            var dbComment = await _postService.GetCommentById(id);
+
+            if (dbComment == null)
+            {
+                return NotFound();
+            }
+
             var result = await _postService.UpdateComment(comment, id);
-            return new JsonResult(result.response) { StatusCode = result.statusCode };
+            return new JsonResult(result) { StatusCode = StatusCodes.Status200OK };
         }
     }
 }
