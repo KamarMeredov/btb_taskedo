@@ -16,80 +16,86 @@ BEGIN
 	SET @RecycledInterestRate = @RecycledInterest / 12 / 100;
 	SET @MonthlyPayment = (@InterestRate * @TotalAmount) / (1 - POWER(1 + @InterestRate, -@LoanTerm));
 	
+	-- AmortizationSchedule table for first 12 payments with 8% interst
 	WITH AmortizationSchedule AS (
     SELECT 
         1 AS [PaymentNumber],
-        @TotalAmount AS [BeginningBalance],
+        @TotalAmount AS [LoanAmount],
         @TotalAmount * @InterestRate AS [Interest],
         @MonthlyPayment - (@TotalAmount * @InterestRate) AS [Principal],
 		@MonthlyPayment AS [PaymentAmount],
-        CONVERT(DECIMAL(19, 2), @TotalAmount - (@MonthlyPayment - (@TotalAmount * @InterestRate))) AS [EndingBalance]
+        CONVERT(DECIMAL(19, 2), @TotalAmount - (@MonthlyPayment - (@TotalAmount * @InterestRate))) AS [EndingLoanBalance]
     UNION ALL
     SELECT 
         [PaymentNumber] + 1,
-        [EndingBalance],
-		[EndingBalance] * @InterestRate,
-        @MonthlyPayment - ([EndingBalance] * @InterestRate),
+        [EndingLoanBalance],
+		[EndingLoanBalance] * @InterestRate,
+        @MonthlyPayment - ([EndingLoanBalance] * @InterestRate),
 		@MonthlyPayment,
-        CONVERT(DECIMAL(19, 2), [EndingBalance] - (@MonthlyPayment - ([EndingBalance] * @InterestRate)))
+        CONVERT(DECIMAL(19, 2), [EndingLoanBalance] - (@MonthlyPayment - ([EndingLoanBalance] * @InterestRate)))
     FROM 
         [AmortizationSchedule]
     WHERE 
         [PaymentNumber] < 12
 	),
 	
-	
-	LastPaymentData as (
+	-- Save last payment information into temporary table for the next 48 payments with 4.5% interest
+	LastPaymentData AS (
 	SELECT
-		[PaymentNumber] AS [PaymentNumber],
-		[EndingBalance] AS [EndingBalance],
-		CONVERT(DECIMAL(19,10), @RecycledInterestRate * [EndingBalance] / (1 - POWER(1 + @RecycledInterestRate, -@RecycledLoanTerm))) AS [MonthlyPayment]
+		[PaymentNumber],
+		[EndingLoanBalance],
+		CONVERT(DECIMAL(19,10), @RecycledInterestRate * [EndingLoanBalance] / (1 - POWER(1 + @RecycledInterestRate, -@RecycledLoanTerm))) AS [MonthlyPayment]
     FROM 
         [AmortizationSchedule]
     WHERE 
         [PaymentNumber] = 12
 	),
 
+	-- Amortization table for next 48 payments with 4.5% interest
 	RecycledAmortizationSchedule AS (
 	SELECT 
-        [LastPaymentData].[PaymentNumber] + 1 AS [PaymentNumber],
-        [LastPaymentData].[EndingBalance] AS [BeginningBalance],
-		[LastPaymentData].[EndingBalance] * @RecycledInterestRate AS [Interest],
-        [LastPaymentData].[MonthlyPayment] - ([LastPaymentData].[EndingBalance] * @RecycledInterestRate) AS [Principal],
-		[LastPaymentData].[MonthlyPayment] AS [PaymentAmount],
-        CONVERT(DECIMAL(19, 2), [LastPaymentData].[EndingBalance] - ([LastPaymentData].[MonthlyPayment] - ([LastPaymentData].[EndingBalance] * @RecycledInterestRate))) AS [EndingBalance]
+        [PaymentNumber] + 1 AS [PaymentNumber],
+        [EndingLoanBalance] AS [LoanAmount],
+		[EndingLoanBalance] * @RecycledInterestRate AS [Interest],
+        [MonthlyPayment] - ([EndingLoanBalance] * @RecycledInterestRate) AS [Principal],
+		[MonthlyPayment] AS [PaymentAmount],
+        CONVERT(DECIMAL(19, 2), [EndingLoanBalance] - ([MonthlyPayment] - ([EndingLoanBalance] * @RecycledInterestRate))) AS [EndingLoanBalance]
     FROM
         [LastPaymentData]
 	UNION ALL
 	SELECT 
-        [RecycledAmortizationSchedule].[PaymentNumber] + 1,
-        [RecycledAmortizationSchedule].[EndingBalance] AS [BeginningBalance],
-		[RecycledAmortizationSchedule].[EndingBalance] * @RecycledInterestRate AS [Interest],
-        [LastPaymentData].[MonthlyPayment] - ([RecycledAmortizationSchedule].[EndingBalance] * @RecycledInterestRate) AS [Principal],
-		[LastPaymentData].[MonthlyPayment] AS [PaymentAmount],
-        CONVERT(DECIMAL(19, 2), [RecycledAmortizationSchedule].[EndingBalance] - ([LastPaymentData].[MonthlyPayment] - ([RecycledAmortizationSchedule].[EndingBalance] * @RecycledInterestRate))) AS [EndingBalance]
+        [RAS].[PaymentNumber] + 1,
+        [RAS].[EndingLoanBalance] AS [LoanAmount],
+		[RAS].[EndingLoanBalance] * @RecycledInterestRate AS [Interest],
+        [MonthlyPayment] - ([RAS].[EndingLoanBalance] * @RecycledInterestRate) AS [Principal],
+		[MonthlyPayment] AS [PaymentAmount],
+        CONVERT(DECIMAL(19, 2), [RAS].[EndingLoanBalance] - ([MonthlyPayment] - ([RAS].[EndingLoanBalance] * @RecycledInterestRate))) AS [EndingLoanBalance]
     FROM
-		[RecycledAmortizationSchedule]
+		[RecycledAmortizationSchedule] AS [RAS]
 	CROSS JOIN
 		[LastPaymentData]
-	WHERE [RecycledAmortizationSchedule].[PaymentNumber] < 12 + @RecycledLoanTerm
+	WHERE 
+		[RAS].[PaymentNumber] < 12 + @RecycledLoanTerm
 	)
 
+	-- Merge two amortization tables with 8% and 4.5% payments to get final result table
 	SELECT
-		[AmortizationSchedule].[PaymentNumber],
-		[AmortizationSchedule].[BeginningBalance],
-		CONVERT(DECIMAL(19,2), [AmortizationSchedule].[Interest]) AS [Interest],
-		CONVERT(DECIMAL(19,2), [AmortizationSchedule].[Principal]) AS [Principal],
-		CONVERT(DECIMAL(19,2), [AmortizationSchedule].[PaymentAmount]) AS [MonthlyPayment],
-		[AmortizationSchedule].[EndingBalance]
-	FROM [AmortizationSchedule]
+		[PaymentNumber],
+		[LoanAmount],
+		CONVERT(DECIMAL(19,2), [Interest]),
+		CONVERT(DECIMAL(19,2), [Principal]),
+		CONVERT(DECIMAL(19,2), [PaymentAmount]),
+		[EndingLoanBalance]
+	FROM 
+		[AmortizationSchedule]
 	UNION ALL
 	SELECT 
-		[RecycledAmortizationSchedule].[PaymentNumber],
-		[RecycledAmortizationSchedule].[BeginningBalance],
-		CONVERT(DECIMAL(19,2), [RecycledAmortizationSchedule].[Interest]) AS [Interest],
-		CONVERT(DECIMAL(19,2), [RecycledAmortizationSchedule].[Principal]) AS [Principal],
-		CONVERT(DECIMAL(19,2), [RecycledAmortizationSchedule].[PaymentAmount]) AS [MonthlyPayment],
-		[RecycledAmortizationSchedule].[EndingBalance]
-	FROM [RecycledAmortizationSchedule]
+		[PaymentNumber],
+		[LoanAmount],
+		CONVERT(DECIMAL(19,2), [Interest]),
+		CONVERT(DECIMAL(19,2), [Principal]),
+		CONVERT(DECIMAL(19,2), [PaymentAmount]),
+		[EndingLoanBalance]
+	FROM 
+		[RecycledAmortizationSchedule]
 END
