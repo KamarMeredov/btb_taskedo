@@ -29,12 +29,12 @@ namespace BlogPlatform
                 
             }
 
+            app.UseMiddleware<ExceptionHandlerMiddleware>();
             app.UseRouting();
             app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
             app.UseMiddleware<LoggerMiddleware>();
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseMiddleware<ExceptionHandlerMiddleware>();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapDefaultControllerRoute();
