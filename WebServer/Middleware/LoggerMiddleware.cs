@@ -3,17 +3,19 @@
     public class LoggerMiddleware
     {
         private readonly RequestDelegate _next;
+        private readonly ILogger _logger;
 
-        public LoggerMiddleware(RequestDelegate next)
+        public LoggerMiddleware(RequestDelegate next, ILogger<LoggerMiddleware> logger)
         {
             _next = next;
+            _logger = logger;
         }
 
         public async Task InvokeAsync(HttpContext context)
         {
-            Console.WriteLine($"Request: {context.Request.Method} {context.Request.Path}");
+            _logger.LogInformation($"Request: {context.Request.Method} {context.Request.Path}");
             await _next(context);
-            Console.WriteLine($"Response: {context.Response.StatusCode}");
+            _logger.LogInformation($"Response: {context.Response.StatusCode}");
         }
     }
 }
