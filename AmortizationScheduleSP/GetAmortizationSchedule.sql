@@ -1,8 +1,8 @@
 CREATE PROCEDURE [dbo].[GetAmortizationSchedule]
 (
 	@TotalAmount DECIMAL(19,2) = 36000,
-    @Interest DECIMAL(19,2) = 8,
-    @LoanTerm INT = 36,
+	@Interest DECIMAL(19,2) = 8,
+	@LoanTerm INT = 36,
 	@RecycledInterest DECIMAL(19,2) = 4.5,
 	@RecycledLoanTerm INT = 48
 )
@@ -18,59 +18,59 @@ BEGIN
 	
 	-- AmortizationSchedule table for first 12 payments with 8% interst
 	WITH AmortizationSchedule AS (
-    SELECT 
-        1 AS [PaymentNumber],
-        @TotalAmount AS [LoanAmount],
-        @TotalAmount * @InterestRate AS [Interest],
-        @MonthlyPayment - (@TotalAmount * @InterestRate) AS [Principal],
+	SELECT 
+		1 AS [PaymentNumber],
+		@TotalAmount AS [LoanAmount],
+		@TotalAmount * @InterestRate AS [Interest],
+		@MonthlyPayment - (@TotalAmount * @InterestRate) AS [Principal],
 		@MonthlyPayment AS [PaymentAmount],
-        CONVERT(DECIMAL(19, 2), @TotalAmount - (@MonthlyPayment - (@TotalAmount * @InterestRate))) AS [EndingLoanBalance]
-    UNION ALL
-    SELECT 
-        [PaymentNumber] + 1,
-        [EndingLoanBalance],
+		CONVERT(DECIMAL(19, 2), @TotalAmount - (@MonthlyPayment - (@TotalAmount * @InterestRate))) AS [EndingLoanBalance]
+	UNION ALL
+	SELECT 
+		[PaymentNumber] + 1,
+		[EndingLoanBalance],
 		[EndingLoanBalance] * @InterestRate,
-        @MonthlyPayment - ([EndingLoanBalance] * @InterestRate),
+		@MonthlyPayment - ([EndingLoanBalance] * @InterestRate),
 		@MonthlyPayment,
-        CONVERT(DECIMAL(19, 2), [EndingLoanBalance] - (@MonthlyPayment - ([EndingLoanBalance] * @InterestRate)))
-    FROM 
-        [AmortizationSchedule]
-    WHERE 
-        [PaymentNumber] < 12
+		CONVERT(DECIMAL(19, 2), [EndingLoanBalance] - (@MonthlyPayment - ([EndingLoanBalance] * @InterestRate)))
+	FROM 
+		[AmortizationSchedule]
+	WHERE 
+		[PaymentNumber] < 12
 	),
-	
+		
 	-- Save last payment information into temporary table for the next 48 payments with 4.5% interest
 	LastPaymentData AS (
 	SELECT
 		[PaymentNumber],
 		[EndingLoanBalance],
 		CONVERT(DECIMAL(19,10), @RecycledInterestRate * [EndingLoanBalance] / (1 - POWER(1 + @RecycledInterestRate, -@RecycledLoanTerm))) AS [MonthlyPayment]
-    FROM 
-        [AmortizationSchedule]
-    WHERE 
-        [PaymentNumber] = 12
+	FROM 
+		[AmortizationSchedule]
+	WHERE 
+		[PaymentNumber] = 12
 	),
 
 	-- Amortization table for next 48 payments with 4.5% interest
 	RecycledAmortizationSchedule AS (
 	SELECT 
-        [PaymentNumber] + 1 AS [PaymentNumber],
-        [EndingLoanBalance] AS [LoanAmount],
+		[PaymentNumber] + 1 AS [PaymentNumber],
+		[EndingLoanBalance] AS [LoanAmount],
 		[EndingLoanBalance] * @RecycledInterestRate AS [Interest],
-        [MonthlyPayment] - ([EndingLoanBalance] * @RecycledInterestRate) AS [Principal],
+		[MonthlyPayment] - ([EndingLoanBalance] * @RecycledInterestRate) AS [Principal],
 		[MonthlyPayment] AS [PaymentAmount],
-        CONVERT(DECIMAL(19, 2), [EndingLoanBalance] - ([MonthlyPayment] - ([EndingLoanBalance] * @RecycledInterestRate))) AS [EndingLoanBalance]
-    FROM
-        [LastPaymentData]
+		CONVERT(DECIMAL(19, 2), [EndingLoanBalance] - ([MonthlyPayment] - ([EndingLoanBalance] * @RecycledInterestRate))) AS [EndingLoanBalance]
+	FROM
+		[LastPaymentData]
 	UNION ALL
 	SELECT 
-        [RAS].[PaymentNumber] + 1,
-        [RAS].[EndingLoanBalance] AS [LoanAmount],
+		[RAS].[PaymentNumber] + 1,
+		[RAS].[EndingLoanBalance] AS [LoanAmount],
 		[RAS].[EndingLoanBalance] * @RecycledInterestRate AS [Interest],
-        [MonthlyPayment] - ([RAS].[EndingLoanBalance] * @RecycledInterestRate) AS [Principal],
+		[MonthlyPayment] - ([RAS].[EndingLoanBalance] * @RecycledInterestRate) AS [Principal],
 		[MonthlyPayment] AS [PaymentAmount],
-        CONVERT(DECIMAL(19, 2), [RAS].[EndingLoanBalance] - ([MonthlyPayment] - ([RAS].[EndingLoanBalance] * @RecycledInterestRate))) AS [EndingLoanBalance]
-    FROM
+		CONVERT(DECIMAL(19, 2), [RAS].[EndingLoanBalance] - ([MonthlyPayment] - ([RAS].[EndingLoanBalance] * @RecycledInterestRate))) AS [EndingLoanBalance]
+	FROM
 		[RecycledAmortizationSchedule] AS [RAS]
 	CROSS JOIN
 		[LastPaymentData]
