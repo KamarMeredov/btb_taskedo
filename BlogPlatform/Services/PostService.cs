@@ -78,7 +78,9 @@ namespace BlogPlatform.Services
                         PostId = x.Id,
                         Title = c.Title
                     }).ToList(),
-                }).ToListAsync();
+                })
+                .AsNoTracking()
+                .ToListAsync();
 
             return (result, StatusCodes.Status200OK);
         }
@@ -102,7 +104,9 @@ namespace BlogPlatform.Services
                         PostId = x.Id,
                         Title = c.Title
                     }).ToList(),
-                }).ToListAsync();
+                })
+                .AsNoTracking()
+                .ToListAsync();
 
             return (result, StatusCodes.Status200OK);
         }
@@ -126,7 +130,10 @@ namespace BlogPlatform.Services
                         PostId = x.Id,
                         Title = c.Title
                     }).ToList(),
-                }).ToList().FirstOrDefault();
+                })
+                .AsNoTracking()
+                .ToList()
+                .FirstOrDefault();
 
             return (result, StatusCodes.Status200OK);
         }
