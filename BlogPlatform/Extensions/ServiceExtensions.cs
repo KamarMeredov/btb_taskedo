@@ -64,7 +64,7 @@ namespace BlogPlatform.Extensions
             {
                 options.SwaggerDoc("v1", new OpenApiInfo()
                 {
-                    Title = "Web Application",
+                    Title = "Blog Platform",
                     Version = "v1",
                 });
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
