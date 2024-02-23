@@ -67,13 +67,11 @@ BEGIN
 		[RAS].[PaymentNumber] + 1,
 		[RAS].[EndingLoanBalance] AS [LoanAmount],
 		[RAS].[EndingLoanBalance] * @RecycledInterestRate AS [Interest],
-		[MonthlyPayment] - ([RAS].[EndingLoanBalance] * @RecycledInterestRate) AS [Principal],
-		[MonthlyPayment] AS [PaymentAmount],
-		CONVERT(DECIMAL(19, 2), [RAS].[EndingLoanBalance] - ([MonthlyPayment] - ([RAS].[EndingLoanBalance] * @RecycledInterestRate))) AS [EndingLoanBalance]
+		[PaymentAmount] - ([RAS].[EndingLoanBalance] * @RecycledInterestRate) AS [Principal],
+		[PaymentAmount] AS [PaymentAmount],
+		CONVERT(DECIMAL(19, 2), [RAS].[EndingLoanBalance] - ([PaymentAmount] - ([RAS].[EndingLoanBalance] * @RecycledInterestRate))) AS [EndingLoanBalance]
 	FROM
 		[RecycledAmortizationSchedule] AS [RAS]
-	CROSS JOIN
-		[LastPaymentData]
 	WHERE 
 		[RAS].[PaymentNumber] < 12 + @RecycledLoanTerm
 	)
