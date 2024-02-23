@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using BlogPlatform.Controllers;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using BlogPlatform.Data.Models;
 
 namespace BlogPlatform.Tests
 {
@@ -17,7 +18,7 @@ namespace BlogPlatform.Tests
             return new TheoryData<LoginUserDTO, int>
             {
                 { new LoginUserDTO { Email = "user1@gmail.com", Password = "12345User1_"}, StatusCodes.Status200OK},
-                { new LoginUserDTO { Email = "user2@gmail.com", Password = "12345User2_"}, StatusCodes.Status404NotFound },
+                { new LoginUserDTO { Email = "user2@gmail.com", Password = "12345User2_"}, StatusCodes.Status401Unauthorized },
                 { new LoginUserDTO { Email = "user1@gmail.com", Password = "22345User2_"}, StatusCodes.Status401Unauthorized }
             };
         }
@@ -26,7 +27,7 @@ namespace BlogPlatform.Tests
         {
             return new TheoryData<RegisterUserDTO, int>
             {
-                { new RegisterUserDTO { Email = "usergmail.com", Password = "12345User1_", Name = "User1User1" }, StatusCodes.Status400BadRequest },
+                { new RegisterUserDTO { Email = "usergmail.com", Password = "12345User1_", Name = "User1User1" }, StatusCodes.Status500InternalServerError },
                 { new RegisterUserDTO { Email = "user1@gmail.com", Password = "12345User1_", Name = "User1User1" }, StatusCodes.Status201Created },
                 { new RegisterUserDTO { Email = "user2@gmail.com", Password = "12345User2_", Name = "User2User2" }, StatusCodes.Status500InternalServerError },
             };
@@ -38,33 +39,57 @@ namespace BlogPlatform.Tests
         {
             // Arrange
             var mock = new Mock<IAccountService>();
-            mock.Setup(x => x.LoginAsync(loginDto))
+            mock.Setup(x => x.LoginAsync(It.IsAny<LoginUserDTO>()))
                 .ReturnsAsync((LoginUserDTO dto) =>
                 {
                     if (dto.Email == "user1@gmail.com" && dto.Password == "12345User1_")
                     {
-                        return (new LoginResponse
+                        return new LoginResponse
                         {
                             AccessToken = "token",
                             Email = dto.Email,
                             Message = "Success"
-                        }, StatusCodes.Status200OK);
+                        };
                     }
 
                     if (dto.Email == "user1@gmail.com" && dto.Password != "12345User1_")
                     {
-                        return (new LoginResponse
+                        return new LoginResponse
                         {
                             Email = dto.Email,
                             Message = "Incorrect password"
-                        }, StatusCodes.Status401Unauthorized);
+                        };
                     }
 
-                    return (new LoginResponse
+                    return new LoginResponse
                     {
                         Email = dto.Email,
                         Message = "User with email not found"
-                    }, StatusCodes.Status404NotFound);
+                    };
+                });
+
+            mock.Setup(x => x.GetUserByEmail(It.IsAny<string>()))
+                .ReturnsAsync((string x) =>
+                {
+                    if (x == "user1@gmail.com")
+                    {
+                        return new ApplicationUser();
+                    }
+
+                    return null;
+                });
+
+            mock.Setup(x => x.CheckUserPassword(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+                .ReturnsAsync((ApplicationUser user, string password) =>
+                {
+                    if (password == "12345User1_")
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 });
 
             var accountController = new AccountController(null, mock.Object);
@@ -86,7 +111,7 @@ namespace BlogPlatform.Tests
         {
             // Arrange
             var mock = new Mock<IAccountService>();
-            mock.Setup(x => x.RegisterAsync(registerDto))
+            mock.Setup(x => x.RegisterAsync(It.IsAny<RegisterUserDTO>()))
                 .ReturnsAsync((RegisterUserDTO dto) =>
                 {
                     if (dto.Email == "usergmail.com" && dto.Password == "12345User1_" && dto.Name == "User1User1")
@@ -95,7 +120,7 @@ namespace BlogPlatform.Tests
                         {
                             Email = dto.Email,
                             UserName = dto.Name
-                        }, StatusCodes.Status400BadRequest);
+                        }, false);
                     }
 
                     if (dto.Email == "user1@gmail.com" && dto.Password == "12345User1_" && dto.Name == "User1User1" )
@@ -104,14 +129,14 @@ namespace BlogPlatform.Tests
                         {
                             Email = dto.Email,
                             UserName = dto.Name
-                        }, StatusCodes.Status201Created);
+                        }, true);
                     }
 
                     return (new RegistrationResponse
                     {
                         Email = dto.Email,
                         UserName = dto.Name
-                    }, StatusCodes.Status500InternalServerError);
+                    }, false);
                 });
 
             var accountController = new AccountController(null, mock.Object);

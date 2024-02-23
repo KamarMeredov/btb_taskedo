@@ -12,8 +12,8 @@ namespace BlogPlatform.Controllers
     [Route("api/[controller]/[action]")]
     public class AccountController : Controller
     {
-        IConfiguration _configuration;
-        IAccountService _accountService;
+        private readonly IConfiguration _configuration;
+        private readonly IAccountService _accountService;
         public AccountController(IConfiguration configuration, IAccountService accountService)
         {
             _configuration = configuration;
