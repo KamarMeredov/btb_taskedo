@@ -87,7 +87,7 @@ namespace BlogPlatform.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetMe()
+        public IActionResult GetMe()
         {
             // TODO add any other needed information for User
             return new JsonResult(new
