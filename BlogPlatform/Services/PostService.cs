@@ -22,11 +22,6 @@ namespace BlogPlatform.Services
 
         public async Task<BlogPostResponse> CreatePost(BlogPostDTO blogPost)
         {
-            if (blogPost == null)
-            {
-                throw new ArgumentNullException(nameof(blogPost));
-            }
-
             var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             
             if (userId == null)
@@ -60,7 +55,7 @@ namespace BlogPlatform.Services
             
             if (post == null)
             {
-                return;
+                throw new ArgumentNullException(nameof(post));
             }
 
             _context.BlogPosts.Remove(post);
@@ -249,11 +244,6 @@ namespace BlogPlatform.Services
             if (comment == null)
             {
                 throw new ArgumentNullException(nameof(comment));
-            }
-
-            if (comment == null)
-            {
-                return;
             }
 
             _context.Comments.Remove(comment);

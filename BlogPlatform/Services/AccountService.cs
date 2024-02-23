@@ -40,8 +40,8 @@ namespace BlogPlatform.Services
 
             var issuer = _configuration["Jwt:Issuer"];
             var audience = _configuration["Jwt:Audience"];
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-            var lifetime = int.Parse(_configuration["Jwt:Lifetime"]);
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
+            var lifetime = int.Parse(_configuration["Jwt:Lifetime"]!);
             var claims = new List<Claim>()
             {
                 new Claim(ClaimTypes.Name, identityUser.UserName),
@@ -72,11 +72,6 @@ namespace BlogPlatform.Services
 
         public async Task<(RegistrationResponse response, bool succeed)> RegisterAsync(RegisterUserDTO user)
         {
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
-
             var identityUser = new ApplicationUser()
             {
                 UserName = user.Name,

@@ -25,11 +25,10 @@ namespace BlogPlatform.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return new JsonResult(new RegistrationResponse()
-                {
-                    Message = ModelState.FirstOrDefault(x => x.Value!.ValidationState == ModelValidationState.Invalid)
-                    .Value!.Errors.FirstOrDefault()!.ErrorMessage
-                })
+                return new JsonResult(
+                    ModelState.Where(x => x.Value!.ValidationState == ModelValidationState.Invalid)
+                    .Select(x => x.Value!.Errors.ToList())
+                    .ToList())
                 { StatusCode = StatusCodes.Status400BadRequest };
             }
 
@@ -51,11 +50,10 @@ namespace BlogPlatform.Controllers
         {
             if( !ModelState.IsValid )
             {
-                return new JsonResult((new RegistrationResponse()
-                {
-                    Message = ModelState.FirstOrDefault(x => x.Value!.ValidationState == ModelValidationState.Invalid)
-                    .Value!.Errors.FirstOrDefault()!.ErrorMessage
-                }))
+                return new JsonResult(
+                    ModelState.Where(x => x.Value!.ValidationState == ModelValidationState.Invalid)
+                    .Select(x => x.Value!.Errors.ToList())
+                    .ToList())
                 { StatusCode = StatusCodes.Status400BadRequest };
             }
 
