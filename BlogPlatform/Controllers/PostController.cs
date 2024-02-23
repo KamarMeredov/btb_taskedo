@@ -17,7 +17,6 @@ namespace BlogPlatform.Controllers
             _postService = postService;
         }
 
-        // Posts CRUD logic
         [HttpPost]
         public async Task<IActionResult> CreatePost([FromBody] BlogPostDTO blogPost)
         {
@@ -101,7 +100,6 @@ namespace BlogPlatform.Controllers
         }
 
 
-        // Comments CRUD logic
         [HttpPost]
         public async Task<IActionResult> CreateComment([FromBody] CommentDto comment, [FromQuery] int postId)
         {
