@@ -82,9 +82,9 @@ BEGIN
 	SELECT
 		[PaymentNumber],
 		[LoanAmount],
-		CONVERT(DECIMAL(19,2), [Interest]),
-		CONVERT(DECIMAL(19,2), [Principal]),
-		CONVERT(DECIMAL(19,2), [PaymentAmount]),
+		CONVERT(DECIMAL(19,2), [Interest]) AS [Interest],
+		CONVERT(DECIMAL(19,2), [Principal]) AS [Principal],
+		CONVERT(DECIMAL(19,2), [PaymentAmount]) AS [PaymentAmount],
 		[EndingLoanBalance]
 	FROM 
 		[AmortizationSchedule]
