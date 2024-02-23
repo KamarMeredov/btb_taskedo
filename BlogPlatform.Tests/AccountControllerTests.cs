@@ -28,7 +28,7 @@ namespace BlogPlatform.Tests
             {
                 { new RegisterUserDTO { Email = "usergmail.com", Password = "12345User1_", Name = "User1User1" }, StatusCodes.Status400BadRequest },
                 { new RegisterUserDTO { Email = "user1@gmail.com", Password = "12345User1_", Name = "User1User1" }, StatusCodes.Status201Created },
-                { new RegisterUserDTO { Email = "user2@gmail.com", Password = "12345User2_", Name = "User2User2" }, StatusCodes.Status409Conflict },
+                { new RegisterUserDTO { Email = "user2@gmail.com", Password = "12345User2_", Name = "User2User2" }, StatusCodes.Status500InternalServerError },
             };
         }
 
@@ -111,7 +111,7 @@ namespace BlogPlatform.Tests
                     {
                         Email = dto.Email,
                         UserName = dto.Name
-                    }, StatusCodes.Status409Conflict);
+                    }, StatusCodes.Status500InternalServerError);
                 });
 
             var accountController = new AccountController(null, mock.Object);
