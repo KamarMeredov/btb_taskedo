@@ -33,6 +33,11 @@ namespace BlogPlatform.Services
         {
             var identityUser = await _userManager.FindByEmailAsync(user.Email);
 
+            if (identityUser == null)
+            {
+                throw new ArgumentNullException(nameof(identityUser));
+            }
+
             var issuer = _configuration["Jwt:Issuer"];
             var audience = _configuration["Jwt:Audience"];
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));

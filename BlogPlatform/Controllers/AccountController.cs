@@ -27,8 +27,8 @@ namespace BlogPlatform.Controllers
             {
                 return new JsonResult(new RegistrationResponse()
                 {
-                    Message = ModelState.FirstOrDefault(x => x.Value.ValidationState == ModelValidationState.Invalid)
-                    .Value.Errors.FirstOrDefault().ErrorMessage
+                    Message = ModelState.FirstOrDefault(x => x.Value!.ValidationState == ModelValidationState.Invalid)
+                    .Value!.Errors.FirstOrDefault()!.ErrorMessage
                 })
                 { StatusCode = StatusCodes.Status400BadRequest };
             }
@@ -53,8 +53,8 @@ namespace BlogPlatform.Controllers
             {
                 return new JsonResult((new RegistrationResponse()
                 {
-                    Message = ModelState.FirstOrDefault(x => x.Value.ValidationState == ModelValidationState.Invalid)
-                    .Value.Errors.FirstOrDefault().ErrorMessage,
+                    Message = ModelState.FirstOrDefault(x => x.Value!.ValidationState == ModelValidationState.Invalid)
+                    .Value!.Errors.FirstOrDefault()!.ErrorMessage
                 }))
                 { StatusCode = StatusCodes.Status400BadRequest };
             }
@@ -89,6 +89,7 @@ namespace BlogPlatform.Controllers
         [Authorize]
         public async Task<IActionResult> GetMe()
         {
+            // TODO add any other needed information for User
             return new JsonResult(new
             {
                 Name = User.FindFirstValue(ClaimTypes.Name),

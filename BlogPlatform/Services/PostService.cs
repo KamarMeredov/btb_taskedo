@@ -11,22 +11,30 @@ namespace BlogPlatform.Services
     public class PostService : IPostService
     {
         private readonly ApplicationContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public PostService(ApplicationContext context, 
-            UserManager<ApplicationUser> userManager,
             IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
-            _userManager = userManager;
             _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<BlogPostResponse> CreatePost(BlogPostDTO blogPost)
         {
-            var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var result = await _context.BlogPosts.AddAsync(new Data.Models.BlogPost
+            if (blogPost == null)
+            {
+                throw new ArgumentNullException(nameof(blogPost));
+            }
+
+            var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            
+            if (userId == null)
+            {
+                throw new ArgumentNullException(nameof(userId));
+            }
+
+            var result = await _context.BlogPosts.AddAsync(new BlogPost
             {
                 AuthorId = int.Parse(userId),
                 Description = blogPost.Description,
@@ -133,7 +141,7 @@ namespace BlogPlatform.Services
                 .AsNoTracking()
                 .SingleOrDefaultAsync();
 
-            return result;
+            return result!;
         }
 
         public async Task<BlogPostResponse> UpdatePost(BlogPostDTO blogPost, int id)
@@ -141,6 +149,11 @@ namespace BlogPlatform.Services
             var post = await _context.BlogPosts
                 .Include(x => x.Comments)
                 .SingleOrDefaultAsync(x => x.Id == id);
+
+            if (post == null)
+            {
+                throw new ArgumentNullException(nameof(post));
+            }
 
             post.Description = blogPost.Description;
             post.Title = blogPost.Title;
@@ -168,8 +181,18 @@ namespace BlogPlatform.Services
 
         public async Task<CommentResponse> CreateComment(CommentDto comment, int postId)
         {
-            var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var post = _context.BlogPosts.SingleOrDefault(x => x.Id == postId);
+
+            if (userId == null)
+            {
+                throw new ArgumentNullException(nameof(userId));
+            }
+
+            if (post == null)
+            {
+                throw new ArgumentNullException(nameof(post));
+            }
 
             var result = await _context.Comments.AddAsync(new Comment
             {
@@ -197,6 +220,11 @@ namespace BlogPlatform.Services
         {
             var dbComment = await _context.Comments.SingleOrDefaultAsync(x => x.Id == id);
             
+            if (dbComment == null)
+            {
+                throw new ArgumentNullException(nameof(dbComment));
+            }
+
             dbComment.Title = comment.Title;
             dbComment.Description = comment.Description;
 
@@ -220,6 +248,11 @@ namespace BlogPlatform.Services
             
             if (comment == null)
             {
+                throw new ArgumentNullException(nameof(comment));
+            }
+
+            if (comment == null)
+            {
                 return;
             }
 
@@ -241,7 +274,7 @@ namespace BlogPlatform.Services
                 })
                 .SingleOrDefaultAsync();
 
-            return comment;
+            return comment!;
         }
     }
 }

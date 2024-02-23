@@ -25,8 +25,8 @@ namespace BlogPlatform.Controllers
             {
                 return new JsonResult((new
                 {
-                    Message = ModelState.FirstOrDefault(x => x.Value.ValidationState == ModelValidationState.Invalid)
-                    .Value.Errors.FirstOrDefault().ErrorMessage,
+                    Message = ModelState.FirstOrDefault(x => x.Value!.ValidationState == ModelValidationState.Invalid)
+                    .Value!.Errors.FirstOrDefault()!.ErrorMessage
                 }))
                 { StatusCode = StatusCodes.Status400BadRequest };
             }
@@ -83,8 +83,8 @@ namespace BlogPlatform.Controllers
             {
                 return new JsonResult((new
                 {
-                    Message = ModelState.FirstOrDefault(x => x.Value.ValidationState == ModelValidationState.Invalid)
-                    .Value.Errors.FirstOrDefault().ErrorMessage,
+                    Message = ModelState.FirstOrDefault(x => x.Value!.ValidationState == ModelValidationState.Invalid)
+                    .Value!.Errors.FirstOrDefault()!.ErrorMessage
                 }))
                 { StatusCode = StatusCodes.Status400BadRequest };
             }
@@ -109,8 +109,8 @@ namespace BlogPlatform.Controllers
             {
                 return new JsonResult((new
                 {
-                    Message = ModelState.FirstOrDefault(x => x.Value.ValidationState == ModelValidationState.Invalid)
-                    .Value.Errors.FirstOrDefault().ErrorMessage,
+                    Message = ModelState.FirstOrDefault(x => x.Value!.ValidationState == ModelValidationState.Invalid)
+                    .Value!.Errors.FirstOrDefault()!.ErrorMessage
                 }))
                 { StatusCode = StatusCodes.Status400BadRequest };
             }
@@ -147,8 +147,8 @@ namespace BlogPlatform.Controllers
             {
                 return new JsonResult((new
                 {
-                    Message = ModelState.FirstOrDefault(x => x.Value.ValidationState == ModelValidationState.Invalid)
-                    .Value.Errors.FirstOrDefault().ErrorMessage,
+                    Message = ModelState.FirstOrDefault(x => x.Value!.ValidationState == ModelValidationState.Invalid)
+                    .Value!.Errors.FirstOrDefault()!.ErrorMessage
                 }))
                 { StatusCode = StatusCodes.Status400BadRequest };
             }
