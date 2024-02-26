@@ -92,7 +92,7 @@ namespace BlogPlatform.Tests
                     }
                 });
 
-            var accountController = new AccountController(null, mock.Object);
+            var accountController = new AccountController(mock.Object);
 
 
             // Act
@@ -139,7 +139,7 @@ namespace BlogPlatform.Tests
                     }, false);
                 });
 
-            var accountController = new AccountController(null, mock.Object);
+            var accountController = new AccountController(mock.Object);
 
             // Act
             var result = await accountController.Register(registerDto);

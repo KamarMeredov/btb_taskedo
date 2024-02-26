@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-
-namespace BlogPlatform.Data.Models
+﻿namespace BlogPlatform.Data.Models
 {
     public class Comment
     {

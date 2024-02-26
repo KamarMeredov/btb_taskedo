@@ -6,6 +6,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using BlogPlatform.DTO;
 using BlogPlatform.Data.Models;
+using BlogPlatform.Helpers;
 
 namespace BlogPlatform.Services
 {
@@ -35,7 +36,7 @@ namespace BlogPlatform.Services
 
             if (identityUser == null)
             {
-                throw new ArgumentNullException(nameof(identityUser));
+                throw new ObjectNotFoundException(nameof(identityUser));
             }
 
             var issuer = _configuration["Jwt:Issuer"];

@@ -13,9 +13,12 @@
 
         public async Task InvokeAsync(HttpContext context)
         {
-            _logger.LogInformation($"Request: {context.Request.Method} {context.Request.Path}");
+            var method = context.Request.Method;
+            var path = context.Request.Path;
+            _logger.LogInformation("Request: {method} {path}", method, path);
             await _next(context);
-            _logger.LogInformation($"Response: {context.Response.StatusCode}");
+            var statusCode = context.Response.StatusCode;
+            _logger.LogInformation("Response: {statusCode}", statusCode);
         }
     }
 }

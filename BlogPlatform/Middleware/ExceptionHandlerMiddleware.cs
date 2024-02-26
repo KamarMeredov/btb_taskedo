@@ -19,7 +19,9 @@
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Exception occurred: {ex.Message}");
+                var message = ex.Message;
+                var stackTrace = ex.StackTrace;
+                _logger.LogError("Exception occurred: {message}, Stack Trace: {stackTrace}", message, stackTrace);
                 context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                 context.Response.ContentType = "application/json";
                 await context.Response.WriteAsJsonAsync(new { Message = "Something went wrong on server." });

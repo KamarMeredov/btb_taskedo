@@ -5,9 +5,9 @@ using Microsoft.IdentityModel.Tokens;
 using BlogPlatform.Data;
 using BlogPlatform.Services;
 using System.Text;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using BlogPlatform.Data.Models;
+using BlogPlatform.Helpers;
 
 namespace BlogPlatform.Extensions
 {
@@ -99,6 +99,7 @@ namespace BlogPlatform.Extensions
             services.AddHttpContextAccessor();
             services.AddTransient<IAccountService, AccountService>();
             services.AddTransient<IPostService, PostService>();
+            services.AddTransient<IUserContext, UserContext>();
         }
 
         // TODO ConfigureAutoMapper

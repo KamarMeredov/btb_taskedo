@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using BlogPlatform.Helpers.Validators;
+using System.ComponentModel.DataAnnotations;
 
 namespace BlogPlatform.DTO
 {
@@ -12,6 +13,7 @@ namespace BlogPlatform.DTO
         [Required(AllowEmptyStrings = false, ErrorMessage = "Password is required.")]
         [MinLength(8)]
         [MaxLength(20)]
+        [PasswordValidator]
         public string Password { get; set; }
 
 

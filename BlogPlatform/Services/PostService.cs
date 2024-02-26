@@ -1,32 +1,31 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
+﻿using Microsoft.EntityFrameworkCore;
 using BlogPlatform.Data;
 using BlogPlatform.Data.Models;
 using BlogPlatform.DTO;
 using BlogPlatform.DTO.ReponseObjects;
+using BlogPlatform.Helpers;
 
 namespace BlogPlatform.Services
 {
     public class PostService : IPostService
     {
         private readonly ApplicationContext _context;
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IUserContext _userContext;
 
         public PostService(ApplicationContext context, 
-            IHttpContextAccessor httpContextAccessor)
+            IUserContext userContext)
         {
+            _userContext = userContext;
             _context = context;
-            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<BlogPostResponse> CreatePost(BlogPostDTO blogPost)
         {
-            var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userId = _userContext.UserId;
             
             if (userId == null)
             {
-                throw new ArgumentNullException(nameof(userId));
+                throw new ObjectNotFoundException(nameof(userId));
             }
 
             var result = await _context.BlogPosts.AddAsync(new BlogPost
@@ -55,7 +54,7 @@ namespace BlogPlatform.Services
             
             if (post == null)
             {
-                throw new ArgumentNullException(nameof(post));
+                throw new ObjectNotFoundException(nameof(post));
             }
 
             _context.BlogPosts.Remove(post);
@@ -147,7 +146,7 @@ namespace BlogPlatform.Services
 
             if (post == null)
             {
-                throw new ArgumentNullException(nameof(post));
+                throw new ObjectNotFoundException(nameof(post));
             }
 
             post.Description = blogPost.Description;
@@ -176,17 +175,17 @@ namespace BlogPlatform.Services
 
         public async Task<CommentResponse> CreateComment(CommentDto comment, int postId)
         {
-            var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userId = _userContext.UserId;
             var post = _context.BlogPosts.SingleOrDefault(x => x.Id == postId);
 
             if (userId == null)
             {
-                throw new ArgumentNullException(nameof(userId));
+                throw new ObjectNotFoundException(nameof(userId));
             }
 
             if (post == null)
             {
-                throw new ArgumentNullException(nameof(post));
+                throw new ObjectNotFoundException(nameof(post));
             }
 
             var result = await _context.Comments.AddAsync(new Comment
@@ -217,7 +216,7 @@ namespace BlogPlatform.Services
             
             if (dbComment == null)
             {
-                throw new ArgumentNullException(nameof(dbComment));
+                throw new ObjectNotFoundException(nameof(dbComment));
             }
 
             dbComment.Title = comment.Title;
@@ -243,7 +242,7 @@ namespace BlogPlatform.Services
             
             if (comment == null)
             {
-                throw new ArgumentNullException(nameof(comment));
+                throw new ObjectNotFoundException(nameof(comment));
             }
 
             _context.Comments.Remove(comment);

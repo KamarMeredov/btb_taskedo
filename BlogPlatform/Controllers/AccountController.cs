@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using BlogPlatform.DTO;
 using BlogPlatform.DTO.ReponseObjects;
 using BlogPlatform.Services;
@@ -12,11 +11,9 @@ namespace BlogPlatform.Controllers
     [Route("api/[controller]/[action]")]
     public class AccountController : Controller
     {
-        private readonly IConfiguration _configuration;
         private readonly IAccountService _accountService;
-        public AccountController(IConfiguration configuration, IAccountService accountService)
+        public AccountController(IAccountService accountService)
         {
-            _configuration = configuration;
             _accountService = accountService;
         }
 
@@ -40,7 +37,7 @@ namespace BlogPlatform.Controllers
             }
             else
             {
-                return new JsonResult(result.response) { StatusCode = StatusCodes.Status500InternalServerError };
+                return new JsonResult(result.response) { StatusCode = StatusCodes.Status409Conflict };
             }
         }
 
