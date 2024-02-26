@@ -105,10 +105,10 @@ namespace BlogPlatform.Extensions
         }
 
 
-        public static List<List<ModelError>> GetModelErrors(this ModelStateDictionary modelState)
+        public static List<ModelError> GetModelErrors(this ModelStateDictionary modelState)
         {
-            return modelState.Where(x => x.Value!.ValidationState == ModelValidationState.Invalid)
-                   .Select(x => x.Value!.Errors.ToList())
+            return modelState.Where(x => x.Value != null && x.Value.ValidationState == ModelValidationState.Invalid)
+                   .SelectMany(x => x.Value!.Errors)
                    .ToList();
         }
 
