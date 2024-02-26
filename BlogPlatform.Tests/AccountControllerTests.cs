@@ -27,9 +27,9 @@ namespace BlogPlatform.Tests
         {
             return new TheoryData<RegisterUserDTO, int>
             {
-                { new RegisterUserDTO { Email = "usergmail.com", Password = "12345User1_", Name = "User1User1" }, StatusCodes.Status500InternalServerError },
+                { new RegisterUserDTO { Email = "usergmail.com", Password = "12345User1_", Name = "User1User1" }, StatusCodes.Status409Conflict },
                 { new RegisterUserDTO { Email = "user1@gmail.com", Password = "12345User1_", Name = "User1User1" }, StatusCodes.Status201Created },
-                { new RegisterUserDTO { Email = "user2@gmail.com", Password = "12345User2_", Name = "User2User2" }, StatusCodes.Status500InternalServerError },
+                { new RegisterUserDTO { Email = "user2@gmail.com", Password = "12345User2_", Name = "User2User2" }, StatusCodes.Status409Conflict },
             };
         }
 
