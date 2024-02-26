@@ -8,6 +8,8 @@ using System.Text;
 using Microsoft.OpenApi.Models;
 using BlogPlatform.Data.Models;
 using BlogPlatform.Helpers;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.Runtime.CompilerServices;
 
 namespace BlogPlatform.Extensions
 {
@@ -100,6 +102,14 @@ namespace BlogPlatform.Extensions
             services.AddTransient<IAccountService, AccountService>();
             services.AddTransient<IPostService, PostService>();
             services.AddTransient<IUserContext, UserContext>();
+        }
+
+
+        public static List<List<ModelError>> GetModelErrors(this ModelStateDictionary modelState)
+        {
+            return modelState.Where(x => x.Value!.ValidationState == ModelValidationState.Invalid)
+                   .Select(x => x.Value!.Errors.ToList())
+                   .ToList();
         }
 
         // TODO ConfigureAutoMapper

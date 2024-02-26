@@ -5,6 +5,7 @@ using BlogPlatform.DTO.ReponseObjects;
 using BlogPlatform.Services;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using BlogPlatform.Extensions;
 
 namespace BlogPlatform.Controllers
 {
@@ -22,7 +23,7 @@ namespace BlogPlatform.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return new JsonResult(GetModelErrors())
+                return new JsonResult(ModelState.GetModelErrors())
                 { StatusCode = StatusCodes.Status400BadRequest };
             }
 
@@ -44,7 +45,7 @@ namespace BlogPlatform.Controllers
         {
             if( !ModelState.IsValid )
             {
-                return new JsonResult(GetModelErrors())
+                return new JsonResult(ModelState.GetModelErrors())
                 { StatusCode = StatusCodes.Status400BadRequest };
             }
 
@@ -84,14 +85,6 @@ namespace BlogPlatform.Controllers
                 Name = User.FindFirstValue(ClaimTypes.Name),
                 Login = User.FindFirstValue(ClaimTypes.Email),
             });
-        }
-
-
-        private List<List<ModelError>> GetModelErrors()
-        {
-            return ModelState.Where(x => x.Value!.ValidationState == ModelValidationState.Invalid)
-                   .Select(x => x.Value!.Errors.ToList())
-                   .ToList();
         }
 
     }
