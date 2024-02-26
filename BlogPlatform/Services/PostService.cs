@@ -113,7 +113,7 @@ namespace BlogPlatform.Services
             return result;
         }
 
-        public async Task<BlogPostResponse> GetPostById(int id)
+        public async Task<BlogPostResponse?> GetPostById(int id)
         {
             var result = await _context.BlogPosts
                 .Where(x => x.Id == id)
@@ -136,7 +136,7 @@ namespace BlogPlatform.Services
                 .AsNoTracking()
                 .SingleOrDefaultAsync();
 
-            return result!;
+            return result;
         }
 
         public async Task<BlogPostResponse> UpdatePost(BlogPostDTO blogPost, int id)
@@ -250,7 +250,7 @@ namespace BlogPlatform.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task<CommentResponse> GetCommentById(int id)
+        public async Task<CommentResponse?> GetCommentById(int id)
         {
             var comment = await _context.Comments
                 .Where(x => x.Id == id)
@@ -264,7 +264,7 @@ namespace BlogPlatform.Services
                 })
                 .SingleOrDefaultAsync();
 
-            return comment!;
+            return comment;
         }
     }
 }

@@ -101,10 +101,6 @@ namespace BlogPlatform.Extensions
             services.AddTransient<IPostService, PostService>();
         }
 
-
-        public static void ConfigureAutoMapper(this IServiceCollection services)
-        {
-
-        }
+        // TODO ConfigureAutoMapper
     }
 }

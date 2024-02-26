@@ -8,7 +8,7 @@ namespace BlogPlatform.Services
         Task<BlogPostResponse> CreatePost(BlogPostDTO blogPost);
         Task DeletePost(int id);
         Task<BlogPostResponse> UpdatePost(BlogPostDTO blogPost, int id);
-        Task<BlogPostResponse> GetPostById(int id);
+        Task<BlogPostResponse?> GetPostById(int id);
         Task<IEnumerable<BlogPostResponse>> GetPostsByAuthor(int id);
         Task<IEnumerable<BlogPostResponse>> GetAllPosts();
 
@@ -16,7 +16,7 @@ namespace BlogPlatform.Services
         Task<CommentResponse> UpdateComment(CommentDto comment, int id);
         Task DeleteComment(int id);
 
-        Task<CommentResponse> GetCommentById(int id);
+        Task<CommentResponse?> GetCommentById(int id);
 
     }
 }
