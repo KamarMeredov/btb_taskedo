@@ -94,7 +94,7 @@ namespace BlogPlatform.Services
             return (new RegistrationResponse()
             {
                 Email = identityUser.Email,
-                Message = result.Errors.Select(x => x.Description).FirstOrDefault(),
+                Message = string.Join(", ", result.Errors.Select(x => x.Description)),
                 UserName = user.Name,
             }, false);
         }

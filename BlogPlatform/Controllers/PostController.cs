@@ -22,10 +22,7 @@ namespace BlogPlatform.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return new JsonResult(
-                    ModelState.Where(x => x.Value!.ValidationState == ModelValidationState.Invalid)
-                    .Select(x => x.Value!.Errors.ToList())
-                    .ToList())
+                return new JsonResult(GetModelErrors())
                 { StatusCode = StatusCodes.Status400BadRequest };
             }
 
@@ -79,10 +76,7 @@ namespace BlogPlatform.Controllers
         {
             if( !ModelState.IsValid )
             {
-                return new JsonResult(
-                    ModelState.Where(x => x.Value!.ValidationState == ModelValidationState.Invalid)
-                    .Select(x => x.Value!.Errors.ToList())
-                    .ToList())
+                return new JsonResult(GetModelErrors())
                 { StatusCode = StatusCodes.Status400BadRequest };
             }
 
@@ -103,10 +97,7 @@ namespace BlogPlatform.Controllers
         {
             if( !ModelState.IsValid )
             {
-                return new JsonResult(
-                    ModelState.Where(x => x.Value!.ValidationState == ModelValidationState.Invalid)
-                    .Select(x => x.Value!.Errors.ToList())
-                    .ToList())
+                return new JsonResult(GetModelErrors())
                 { StatusCode = StatusCodes.Status400BadRequest };
             }
 
@@ -140,10 +131,7 @@ namespace BlogPlatform.Controllers
         {
             if( !ModelState.IsValid )
             {
-                return new JsonResult(
-                    ModelState.Where(x => x.Value!.ValidationState == ModelValidationState.Invalid)
-                    .Select(x => x.Value!.Errors.ToList())
-                    .ToList())
+                return new JsonResult(GetModelErrors())
                 { StatusCode = StatusCodes.Status400BadRequest };
             }
 
@@ -156,6 +144,13 @@ namespace BlogPlatform.Controllers
 
             var result = await _postService.UpdateComment(comment, id);
             return new JsonResult(result) { StatusCode = StatusCodes.Status200OK };
+        }
+
+        private List<List<ModelError>> GetModelErrors()
+        {
+            return ModelState.Where(x => x.Value!.ValidationState == ModelValidationState.Invalid)
+                   .Select(x => x.Value!.Errors.ToList())
+                   .ToList();
         }
     }
 }

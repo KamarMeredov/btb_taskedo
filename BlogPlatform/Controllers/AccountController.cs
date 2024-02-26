@@ -22,10 +22,7 @@ namespace BlogPlatform.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return new JsonResult(
-                    ModelState.Where(x => x.Value!.ValidationState == ModelValidationState.Invalid)
-                    .Select(x => x.Value!.Errors.ToList())
-                    .ToList())
+                return new JsonResult(GetModelErrors())
                 { StatusCode = StatusCodes.Status400BadRequest };
             }
 
@@ -47,10 +44,7 @@ namespace BlogPlatform.Controllers
         {
             if( !ModelState.IsValid )
             {
-                return new JsonResult(
-                    ModelState.Where(x => x.Value!.ValidationState == ModelValidationState.Invalid)
-                    .Select(x => x.Value!.Errors.ToList())
-                    .ToList())
+                return new JsonResult(GetModelErrors())
                 { StatusCode = StatusCodes.Status400BadRequest };
             }
 
@@ -90,6 +84,14 @@ namespace BlogPlatform.Controllers
                 Name = User.FindFirstValue(ClaimTypes.Name),
                 Login = User.FindFirstValue(ClaimTypes.Email),
             });
+        }
+
+
+        private List<List<ModelError>> GetModelErrors()
+        {
+            return ModelState.Where(x => x.Value!.ValidationState == ModelValidationState.Invalid)
+                   .Select(x => x.Value!.Errors.ToList())
+                   .ToList();
         }
 
     }
